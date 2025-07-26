@@ -1,0 +1,16 @@
+__pycache__/
+figures_real/*
+figures_sim/*
+results_sim/dfGP/*
+results_sim/dfGPcm/*
+results_sim/dfNGP/*
+results_sim/dfNN/*
+results_sim/GP/*
+results_sim/PINN/*
+results_real/dfGP/*
+results_real/dfGPcm/*
+results_real/dfNGP/*
+results_real/dfNN/*
+results_real/GP/*
+results_real/PINN/*
+
