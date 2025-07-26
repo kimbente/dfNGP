@@ -1,5 +1,7 @@
 # dfNGP
-divergence-free Neural Gaussian Processes 
+Divergence-free Neural Gaussian Processes 
+
+![Introduction to dfNGPs](README_assets/intro_vis.png)
 
 ## Set up the environment
 
@@ -24,6 +26,10 @@ Next, use `pip` to install all required packages from the `requirements.txt` fil
 Installation may take a few minutes. 
 
 ## Run experiments
+
+## Model: The divergence-free Neural Gaussian Process
+
+![Structure of the divergence-free Neural Gaussian Process](README_assets/model_vis.png)
 
 ## List of files with brief explanantions
 
