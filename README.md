@@ -60,34 +60,54 @@ For greater reproducibility, transparancy, and data provenance we also provide t
 Preface: To reproduce the real data experiments, you can also just run the scripts on the provided, much smaller, already preprocessed data. We include the following downloading and preprocessing pipeline for full **reproducibility**.
 
 ### Download
-- In `download_bedmap123.py` replace `path_to_bedmap_data_folder` with your own local path. Run the python script with `python download_bedmap123.py` from the terminal. This will automatically download, unzip, and organise all bedmap data files. This script works on the os operating system. If you have trouble with this script or you are not on os, also see this [BAS resource from the Geophyscis Book by the UK Polar Centre](https://antarctica.github.io/PDC_GeophysicsBook/BEDMAP/Downloading_the_Bedmap_data.html) for useful information.
+- In `real_data_step1__download_bedmap123.py` replace `path_to_bedmap_data_folder` with your own local path. Run the python script with `python real_data_step1_download_bedmap123.py` from the terminal. This will automatically download, unzip, and organise all bedmap data files. This script works on the os operating system. If you have trouble with this script or you are not on os, also see this [BAS resource from the Geophyscis Book by the UK Polar Centre](https://antarctica.github.io/PDC_GeophysicsBook/BEDMAP/Downloading_the_Bedmap_data.html) for useful information.
 - <p style="color:red;"><strong>WARNING:</strong> This script downloads 11 GB of data!</p>
     - Bedmap1: 0.157 GB
     - Bedmap2: 3.2 GB
     - Bedmap3: 6.8 GB
-- The script directly downloads all standardised .csv files from the Bedmap1, Bedmap2 and Bedmap3 collections from the [UK Polar Data Centre](https://www.bas.ac.uk/data/uk-pdc/). The list of .csv files are visible [on this Bristish Antarctic Survey (BAS) webpage](https://www.bas.ac.uk/project/bedmap/#data).
+- The script directly downloads all standardised .csv files from the Bedmap1, Bedmap2 and Bedmap3 collections from the [UK Polar Data Centre](https://www.bas.ac.uk/data/uk-pdc/). The lists of .csv files are visible on [this Bristish Antarctic Survey (BAS) webpage](https://www.bas.ac.uk/project/bedmap/#data).
 - Also check out this [Github repository](https://github.com/kimbente/bedmap) for some additional analysis of Bedmap123 data.
 
 ### Preprocess
 
-- In `preprocess_bedmap123.py`, specify your preference about which variable you care about by setting bool_remove_rows_without_ice_thickness and/or bool_remove_rows_without_bed_elevation. Also make sure you set `path_to_bedmap_data_folder` to the same path you used for the download script. We set `bool_remove_rows_without_ice_thickness = True` because we will be using ice thickness measurements.
+- In `real_data_step2_preprocess_bedmap123.py`, specify your preference about which variable you care about by setting bool_remove_rows_without_ice_thickness and/or bool_remove_rows_without_bed_elevation. Also make sure you set `path_to_bedmap_data_folder` to the same path you used for the download script. We set `bool_remove_rows_without_ice_thickness = True` because we will be using ice thickness measurements.
     - For only `bool_remove_rows_without_ice_thickness = True` the resulting data set contains ~ 82 M points (i.e. rows.) and is 9.5 GB large.
     - For only `bool_remove_rows_without_bed_elevation = True` the resulting data set contains ~ 67 M points (i.e. rows.)
-- Run the script with `python preprocess_bedmap123.py` from the terminal.
-- The script combines all csv files into a standardised pd Dataframe and performs a set of cleaning and preprocessing steps.
+- Run the script with `python real_data_step2_preprocess_bedmap123.py` from the terminal.
+- The script combines all csv files into a standardised pd.Dataframe (pandas) and performs a set of cleaning and preprocessing steps.
 - Number of csv files to combine: 151 
     - Number of bedmap1 csv files: 1
     - Number of bedmap2 csv files: 66
     - Number of bedmap3 csv files: 84
-- Next, the data is subsetted for the broader Byrd region. The subset of data for the 300 x 300 km Byrd glacier catchment area is more managable in size and only contains 750k data points, reducing the size to 0.085 GB.
+- Next, the data is subsetted for the broader Byrd region. The subset of data for the 300 x 300 km Byrd area is more managable in size and only contains 750k data points, reducing the file size to 0.085 GB. These are the Antarctic Polar Stereographic coordinates (see [EPSG:3031](https://epsg.io/3031)) used to subset the data. (For a user-friendly, non-programmatic conversion between and Polar Stereographic Coordinates we recommend [this conversion webtool by the Polar Geospatial Center (University of Minnesota)](https://www.pgc.umn.edu/apps/convert/).)
+    - x_min = 350_000
+    - x_max = 650_000
+    - y_min = -1_000_000
+    - y_max = -700_000
 
-### Create train and test data sets
+### Generate train-test regions
 
-- Run the notebook `real_data_preprocess_regions.ipynb` to generate the three x two pytorch tensors stored in [real_data](data/real_data).
-- We use data from three regions within the wider Byrd glacier catchment. 
+Go through the IPython notebook `real_data_step3_generate_train_test_regions.ipynb` to generate the train and test tensors for the three regions, which are already provided in [real_data](data/real_data)
+- Since the Bedmap data that we just downloaded is combined with ice velocity observations, these need to be downloaded too. Download **MEaSUREs InSAR-Based Antarctica Ice Velocity Map, Version 2** from (the NSIDC website)[https://nsidc.org/data/nsidc-0484/versions/2]. See [here for the documentation/user guide](https://nsidc.org/sites/default/files/nsidc-0484-v002-userguide.pdf).
+    - Citation: **Rignot, E., Mouginot, J. & Scheuchl, B. (2017). MEaSUREs InSAR-Based Antarctica Ice Velocity Map. (NSIDC-0484, Version 2). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/D7GK8F5J8M8R.**
+- Again, change the path to the preprocessed Bedmap123 data to your local path and specify the path to the ice velocity observations. 
+- The code handles firn corrections, performs some meta data analysis, and produces visualisations to get on overview over the data.
+- We use data from three regions within the wider Byrd glacier catchment. These are the Polar Stereographic coordinates of the respective regions:
     - Upper Byrd (70 x 70 km)
+        - upper_byrd_x_min = 400_000
+        - upper_byrd_x_max = 470_000
+        - upper_byrd_y_min = -800_000
+        - upper_byrd_y_max = -730_000
     - Mid Byrd (70 x 70 km)
+        - mid_byrd_x_min = 395_000
+        - mid_byrd_x_max = 465_000
+        - mid_byrd_y_min = -870_000
+        - mid_byrd_y_max = -800_000
     - Lower Byrd (30 x 30 km)
+        - lower_byrd_x_min = 420_000
+        - lower_byrd_x_max = 450_000
+        - lower_byrd_y_min = -910_000
+        - lower_byrd_y_max = -880_000
 
 Byrd Glacier drains a large part of the East Antarctic Ice Sheet (EAIS) and flows into the Ross Ice Shelf. See [Byrd Subglacial Basin](https://data.aad.gov.au/aadc/gaz/display_name.cfm?gaz_id=123177).
 
@@ -96,25 +116,45 @@ Byrd Glacier drains a large part of the East Antarctic Ice Sheet (EAIS) and flow
 To aid navigation, we provide an alphabetical list of the main folders and files in this repository, along with brief descriptions of their contents.
 
 - [data](data)
-    - **real data** contains train and test data as pytorch tensors for the three selected regions of Byrd glacier, lower, mid and upper.
-    - **sim_data**
-        - [x_train_lines_discretised_0to1.pt](data/sim_data/x_train_lines_discretised_0to1.pt) defines the input locations for the simulated data experiments. The corresponding training vectors are generated within the experiment scripts, using the functions written in [simulate.py](simulate.py).
+    - [real_data](data/real_data) contains train and test data as pytorch tensors for the three selected regions of Byrd glacier, lower, mid and upper.
+        - [corner_coordinates_byrd_for_velocity.csv](data/real_data/corner_coordinates_byrd_for_velocity.csv) contains coordinates used for preprocessing the ice velocity data before combining it with the ice thickness measurements.
+        - [corner_coordinates_byrd_regions_experiments.csv](data/real_data/corner_coordinates_byrd_regions_experiments.csv) contains the coordinates of the three experimental regions, as well as scaling parameters that can be used to transform data back to original units.
+    - [sim_data](data/sim_data)
+        - [x_train_lines_discretised_0to1.pt](data/sim_data/x_train_lines_discretised_0to1.pt) defines the input locations for the simulated data experiments. The corresponding train and test vectors are generated within the experiment scripts, using the functions written in [simulate.py](simulate.py).
 - [figues_real](figures_real)
-    - 
+    - Contains folders for each model.
 - [figues_sim](figures_sim)
-    - 
+    - Contains folders for each model.
+- [preprocess](prerpocess)
+    - [real_data_step1_download_bedmap123.py](preprocess/real_data_step1_download_bedmap123.py) downloads all standardised raw data from Bedmap1, Bedmap2, and Bedmap 2.
+    - [real_data_step2_preprocess_bedmap123.py](preprocess/real_data_step2_preprocess_bedmap123.py) preprocesses and cleans the downloaded raw datasets to then generate one pd.Dataframe.
+    - [real_data_step3_preprocess_regions.ipynb](preprocess/real_data_step3_preprocess_regions.ipynb)
+    - [real_preprocess.py](preprocess/real_preprocess.py) contains functions need in the step 3 preprocessing notebook.
 - [README_assets](README_assets) stores the visualisations used within this README.md
 - [results_real](results_real)
-    - [generate_latex_results_table_real.py](latex_table/generate_latex_results_table_real.py) generates latex format table from REAL experiment results (truncating, formatting).
+    - [generate_latex_results_table_real.py](latex_table/generate_latex_results_table_real.py) generates a latex format table from the real experiment results (truncating, formatting). The generated file is called generated_latex_results_table_real.txt and saved in the same directory.
     - Due to size constraints, we do not upload all experimental outputs to GitHub. However, running the experiments will automatically generate and save all results and outputs in this directory.
 - [results_sim](results_sim)
-    - [generate_latex_results_table_sim.py](latex_table/generate_latex_results_table_sim.py) generates latex format table from SIM experiment results (truncating, formatting).
+    - [generate_latex_results_table_sim.py](latex_table/generate_latex_results_table_sim.py) generates latex format table from SIM experiment results (truncating, formatting). The generated file is called generated_latex_results_table_sim.txt and saved in the same directory.
+    - [visualise_sim_experiments_training_hps.ipynb](results_sim/visualise_sim_experiments_training_hps.ipynb) visualises the training evolution, hyperparameter evolutions and predictions from RUN 1 as a consistency check and to provide more insight into model training.
     - Due to size constraints, we do not upload all experimental outputs to GitHub. However, running the experiments will automatically generate and save all results and outputs in this directory.
 - [configs.py](configs.py) specifies all hyperparameters like, for example learning rates and number of epochs, and also defines the initialisation ranges for GP hyperparameters. Other settings like carbon tracking or print frequencies can be adjusted here too. 
 - [gpytorch_models.py](gpytorch_models.py) defines all GP-based (probabilistic) models using `gpytorch`. This includes **dfNGP, dfGP, dfGPcm, and the regular GP**. The divergence-free kernel is contained in this file too. The implementation leverages the `linear_operator` package.
 - [metrics.py](metrics.py) contains metric functions that were required in addition to those provided by packages like gpytorch.
 - [NN_models.py](NN_models.py) defines all purely neural network-based models using `torch`. This includes the **dfNN and PINN**. 
 - [requirements.txt](requirements.txt) can be use to create a suitable conda environment to reproduce our experiments. The text file lists all key packages necessary to run our code, including the version specifications we used. The instruction to create this environment are given above. 
+- [run_real_experiments_dfGP.py](run_real_experiments_dfGP.py) contains the script to run dfGP experiments on real data.
+    - Results & outputs of these experiments are saved in results_real/dfGP.
+- [run_real_experiments_dfGPcm.py](run_real_experiments_dfGPcm.py) contains the script to run dfGPcm experiments on real data.
+    - Results & outputs of these experiments are saved in results_real/dfGPcm.
+- [run_real_experiments_dfNGP.py](run_real_experiments_dfNGP.py) contains the script to run dfNGP experiments on real data.
+    - Results & outputs of these experiments are saved in results_real/dfNGP.
+- [run_real_experiments_dfNN.py](run_real_experiments_dfNN.py) contains the script to run dfNN experiments on real data.
+    - Results & outputs of these experiments are saved in results_real/dfNN.
+- [run_real_experiments_GP.py](run_real_experiments_GP.py) contains the script to run dfNN experiments on real data.
+    - Results & outputs of these experiments are saved in results_real/GP.
+- [run_real_experiments_PINN.py](run_sim_experiments_PINN.py) contains the script to run dfNN experiments on real data. 
+    - Results & outputs of these experiments are saved in results_real/PINN.
 - [run_sim_experiments_dfGP.py](run_sim_experiments_dfGP.py) contains the script to run dfGP experiments on simulated data.
     - Results & outputs of these experiments are saved in results_sim/dfGP.
 - [run_sim_experiments_dfGPcm.py](run_sim_experiments_dfGPcm.py) contains the script to run dfGPcm experiments on simulated data.
@@ -129,6 +169,7 @@ To aid navigation, we provide an alphabetical list of the main folders and files
     - Results & outputs of these experiments are saved in results_sim/PINN.
 - [simulate.py](simulate.py) contains all functions to generate simulated divergence-free vector fields from inputs x, used in the simulated data experiments.
 - [utils.py](utils.py) contains utility/helper functions, e.g. to make a grid.
+- [visualise.py](visualise.py) provides useful visualisation functions for vector fields.
 
 ## The divergence-free Neural Gaussian Process (dfNGP)
 

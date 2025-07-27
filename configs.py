@@ -79,25 +79,9 @@ W_PINN_DIV_WEIGHT = 0.3
 # NOTE: This corresponds to a true noise variance of 0.0004
 STD_GAUSSIAN_NOISE = 0.02
 
-###################################
-### REAL (df)GP HYPERPARAMETERS ###
-###################################
-
-# Scale input bacl to ~km
-SCALE_INPUT_region_lower_byrd = 30
-SCALE_INPUT_region_mid_byrd = 70
-SCALE_INPUT_region_upper_byrd = 70
-
-# NOTE: This corresponds to a l^2 range of (4.0, 25.0) (domain is e.g. [0, 70])
-REAL_L_RANGE = (5.0, 8.0)
-
-REAL_NOISE_VAR_RANGE = (0.01, 0.05)
-
-REAL_OUTPUTSCALE_VAR_RANGE = (1.0, 2.0)
-
-##############################
-### (df)GP HYPERPARAMETERS ###
-##############################
+##########################################
+### DEFAULT/SIM (df)GP HYPERPARAMETERS ###
+##########################################
 # order: lengthscale, outputscale variance, noise variance
 
 # HYPERPARAMETER 1: Range for lengthscale parameter (l) 
@@ -120,3 +104,17 @@ TASK_COVAR_FACTOR_RANGE = (-0.2, 0.5)
 # HYPERPARAMETER 3: Range for noise variance parameter (sigma_n^2)
 # NOTE: This corresponds to a sigma_n range of (0.01, 0.07)
 NOISE_VAR_RANGE = (0.0001, 0.0049)
+
+###################################
+### REAL (df)GP HYPERPARAMETERS ###
+###################################
+
+# Scale input bacl to ~km
+SCALE_INPUT_region_lower_byrd = 30
+SCALE_INPUT_region_mid_byrd = 70
+SCALE_INPUT_region_upper_byrd = 70
+
+# NOTE: This corresponds to a l^2 range of (4.0, 25.0) (domain is e.g. [0, 70])
+REAL_L_RANGE = (5.0, 8.0)
+REAL_NOISE_VAR_RANGE = (0.01, 0.05)
+REAL_OUTPUTSCALE_VAR_RANGE = (1.0, 2.0)

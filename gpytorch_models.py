@@ -238,8 +238,6 @@ class dfGP(gpytorch.models.ExactGP):
             )
 
         ### COVARIANCE MODULE ###
-        # self.base_kernel = dfRBFKernel_linop_afterthought(num_tasks = 2).to(device)
-        # self.base_kernel = dfRBFKernel_kronecker(num_tasks = 2).to(device)
         # NOTE: We need to initialise it with ard_num_dims = 2  if we want to use a 2D lengthscale
         self.base_kernel = dfRBFKernel(ard_num_dims = 2).to(device)
         
@@ -358,7 +356,6 @@ class dfNGP(gpytorch.models.ExactGP):
         self.likelihood.raw_noise_constraint = gpytorch.constraints.GreaterThan(1e-5)
 
     def forward(self, x):
-        # print("requires_grad?", x.requires_grad)
         mean_x = self.mean_module(x)  # Ensure gradients are computed for the mean
         # NOTE: Specify x1 and x2 for the dfRBFKernel
         covar_x = self.covar_module.forward(x, x)

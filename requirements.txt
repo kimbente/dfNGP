@@ -9,4 +9,5 @@ ipython==8.37.0
 ipykernel==6.29.5
 netCDF4==1.7.2
 xarray==2024.5.0
+pyproj==3.6.1
 codecarbon==3.0.2
