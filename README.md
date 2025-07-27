@@ -59,13 +59,8 @@ For greater reproducibility, transparancy, and data provenance we also provide t
 
 Preface: To reproduce the real data experiments, you can also just run the scripts on the provided, much smaller, already preprocessed data. We include the following downloading and preprocessing pipeline for full **reproducibility**.
 
-<<<<<<< HEAD
 ### Download Bedmap
 - In `real_data_step1__download_bedmap123.py` replace `path_to_bedmap_data_folder` with your own local path. Run the python script with `python real_data_step1_download_bedmap123.py` from the terminal. This will automatically download, unzip, and organise all **Bedmap** data files. This script works on the os operating system. If you have trouble with this script or you are not on os, also see this [BAS resource from the Geophyscis Book by the UK Polar Centre](https://antarctica.github.io/PDC_GeophysicsBook/BEDMAP/Downloading_the_Bedmap_data.html) for useful information.
-=======
-### Download
-- In `real_data_step1__download_bedmap123.py` replace `path_to_bedmap_data_folder` with your own local path. Run the python script with `python real_data_step1_download_bedmap123.py` from the terminal. This will automatically download, unzip, and organise all bedmap data files. This script works on the os operating system. If you have trouble with this script or you are not on os, also see this [BAS resource from the Geophyscis Book by the UK Polar Centre](https://antarctica.github.io/PDC_GeophysicsBook/BEDMAP/Downloading_the_Bedmap_data.html) for useful information.
->>>>>>> bcc02b9... refine preprocessing pipeline, add missing requirement
 - <p style="color:red;"><strong>WARNING:</strong> This script downloads 11 GB of data!</p>
     - Bedmap1: 0.157 GB
     - Bedmap2: 3.2 GB
@@ -97,17 +92,14 @@ Preface: To reproduce the real data experiments, you can also just run the scrip
 
 Go through the IPython notebook `real_data_step3_generate_train_test_regions.ipynb` to generate the train and test tensors for the three regions, which are already provided in [real_data](data/real_data)
 - Since the Bedmap data that we just downloaded is combined with ice velocity observations, these need to be downloaded too. Download **MEaSUREs InSAR-Based Antarctica Ice Velocity Map, Version 2** from (the NSIDC website)[https://nsidc.org/data/nsidc-0484/versions/2]. See [here for the documentation/user guide](https://nsidc.org/sites/default/files/nsidc-0484-v002-userguide.pdf).
-<<<<<<< HEAD
     - MEaSUREs InSAR Antarctica reference: *Rignot, E., Mouginot, J. & Scheuchl, B. (2017). MEaSUREs InSAR-Based Antarctica Ice Velocity Map. (NSIDC-0484, Version 2). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/D7GK8F5J8M8R.*
 - Again, change the path to the preprocessed Bedmap123 data to your local path and specify the path to the ice velocity observations. 
 - The code handles firn corrections, performs some meta data analysis, and produces visualisations to get on overview over the data.
 - The notebook subsets three regions within the wider Byrd glacier catchment for our experiments. Byrd Glacier drains a large part of the East Antarctic Ice Sheet (EAIS) and flows into the Ross Ice Shelf. Hence, the Byrd Subglacial Basin has fast flowing ice and an interesting and scientifically important bed topography. These boundries are given in Polar Stereographic coordinates:
-=======
     - Citation: **Rignot, E., Mouginot, J. & Scheuchl, B. (2017). MEaSUREs InSAR-Based Antarctica Ice Velocity Map. (NSIDC-0484, Version 2). [Data Set]. Boulder, Colorado USA. NASA National Snow and Ice Data Center Distributed Active Archive Center. https://doi.org/10.5067/D7GK8F5J8M8R.**
 - Again, change the path to the preprocessed Bedmap123 data to your local path and specify the path to the ice velocity observations. 
 - The code handles firn corrections, performs some meta data analysis, and produces visualisations to get on overview over the data.
 - We use data from three regions within the wider Byrd glacier catchment. These are the Polar Stereographic coordinates of the respective regions:
->>>>>>> bcc02b9... refine preprocessing pipeline, add missing requirement
     - Upper Byrd (70 x 70 km)
         - upper_byrd_x_min = 400_000
         - upper_byrd_x_max = 470_000
@@ -123,16 +115,12 @@ Go through the IPython notebook `real_data_step3_generate_train_test_regions.ipy
         - lower_byrd_x_max = 450_000
         - lower_byrd_y_min = -910_000
         - lower_byrd_y_max = -880_000
-<<<<<<< HEAD
 - All 6 train/test tensors have the following five columns:
     - x coordinate [original units: Polar Stereographic X, now: min-max normalised to (0,1)]
     - y coordinate [original units: Polar Stereographic Y, now: min-max normalised to (0,1)]
     - *surface elevation* [original units: m, now: km] (this is auxiliary information, not currently used)
     - ice flux in x-direction [original units: m^2 / year i.e. m^3 / m / year, now: scaled to reduce magnitude]
     - ice flux in y-direction [original units: m^2 / year i.e. m^3 / m / year, now: scaled to reduce magnitude]
-=======
->>>>>>> bcc02b9... refine preprocessing pipeline, add missing requirement
-
 
 ## List of files with brief explanantions
 
