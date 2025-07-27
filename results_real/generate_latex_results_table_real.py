@@ -120,7 +120,7 @@ for i, region_name in enumerate(regions):
         latex_lines.append(r"\toprule")
 
 # Save to file
-with open("generated_latex_results_table_real.txt", "w") as f:
+with open("results_real/generated_latex_results_table_real.txt", "w") as f:
     for line in latex_lines:
         f.write(line + "\n")
 

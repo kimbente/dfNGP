@@ -131,7 +131,7 @@ for idx, sim_name in enumerate(simulations):
         latex_lines.append(r"\toprule")
 
 # Save to file
-with open("generated_latex_results_table_sim.txt", "w") as f:
+with open("results_sim/generated_latex_results_table_sim.txt", "w") as f:
     for line in latex_lines:
         f.write(line + "\n")
 
