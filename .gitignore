@@ -1,12 +1,16 @@
 __pycache__/
 figures_real/*
-figures_sim/*
+
+### RESULTS ###
+# Ignore all contents of results_sim model subfolders
 results_sim/dfGP/*
 results_sim/dfGPcm/*
 results_sim/dfNGP/*
 results_sim/dfNN/*
 results_sim/GP/*
 results_sim/PINN/*
+
+# Ignore all contents of results_real model subfolders + grid inference
 results_real/dfGP/*
 results_real/dfGPcm/*
 results_real/dfNGP/*
@@ -14,4 +18,19 @@ results_real/dfNGP_grid_inference/*
 results_real/dfNN/*
 results_real/GP/*
 results_real/PINN/*
+
+# Ignore all contents of figure subfolders, show vis notebook
+figures_sim/cmaps/*
+figures_sim/divergence/*
+figures_sim/errors/*
+figures_sim/ground_truth/*
+figures_sim/ground_truth_and_train_lines/*
+figures_sim/illustrate_covar/*
+figures_sim/predictions/*
+figures_sim/predictions_with_errors/*
+figures_sim/samples/*
+figures_sim/samples_with_error/*
+figures_sim/samples_with_uncertainty/*
+figures_sim/train_lines/*
+figures_sim/variance/*
 
