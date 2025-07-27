@@ -10,6 +10,7 @@ results_sim/PINN/*
 results_real/dfGP/*
 results_real/dfGPcm/*
 results_real/dfNGP/*
+results_real/dfNGP_grid_inference/*
 results_real/dfNN/*
 results_real/GP/*
 results_real/PINN/*
