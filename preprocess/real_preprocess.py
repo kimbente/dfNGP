@@ -307,60 +307,11 @@ def df_to_tensor(df, x_min, x_max, y_min, y_max, flux_scale, surface_scale = 100
         dtype = torch.float32
     )
 
-<<<<<<< HEAD
-=======
-    # error, also scaled by flux_scale
-    velxerr_tensor = torch.tensor(
-        (df.vel_x_err/ np.sqrt(flux_scale)).to_numpy(),
-        dtype = torch.float32
-    )
-
-    velyerr_tensor = torch.tensor(
-        (df.vel_x_err / np.sqrt(flux_scale)).to_numpy(),
-        dtype = torch.float32
-    )
-
-    vel_x_tensor = torch.tensor(
-        (df.vel_x / np.sqrt(flux_scale)).to_numpy(),
-        dtype = torch.float32
-    )
-
-    vel_y_tensor = torch.tensor(
-        (df.vel_y / np.sqrt(flux_scale)).to_numpy(),
-        dtype = torch.float32
-    )
-
-    t_tensor = torch.tensor(
-        (df.t / np.sqrt(flux_scale)).to_numpy(),
-        dtype = torch.float32
-    )
-
-    source_age_tensor = torch.tensor(
-        (df.source_age).to_numpy(),
-        dtype = torch.float32
-    )
-
->>>>>>> bcc02b9... refine preprocessing pipeline, add missing requirement
     return torch.cat(
         (x_tensor.unsqueeze(0), 
          y_tensor.unsqueeze(0), 
          s_tensor.unsqueeze(0), 
-         xflux_tensor.unsqueeze(0), 
-<<<<<<< HEAD
+         xflux_tensor.unsqueeze(0),
          yflux_tensor.unsqueeze(0)),
         dim = 0
     )
-
-
-=======
-         yflux_tensor.unsqueeze(0),
-         velxerr_tensor.unsqueeze(0),
-         velyerr_tensor.unsqueeze(0),
-         vel_x_tensor.unsqueeze(0),
-         vel_y_tensor.unsqueeze(0),
-         t_tensor.unsqueeze(0),
-         source_age_tensor.unsqueeze(0),
-         torch.sqrt(torch.tensor(flux_scale)).repeat(1, source_age_tensor.shape[0])),
-        dim = 0
-    )
->>>>>>> bcc02b9... refine preprocessing pipeline, add missing requirement
