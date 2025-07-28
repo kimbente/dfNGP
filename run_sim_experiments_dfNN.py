@@ -35,15 +35,11 @@ from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, PRINT_FREQ
 from configs import N_SIDE, STD_GAUSSIAN_NOISE
 from configs import TRACK_EMISSIONS_BOOL
 
-# custom weight decay
-if model_name == "dfNN":
-    from configs import dfNN_SIM_WEIGHT_DECAY
-
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
 NUM_RUNS = NUM_RUNS
 # NOTE: The dfNN generally learns better with higher weight decay
-WEIGHT_DECAY = dfNN_SIM_WEIGHT_DECAY
+WEIGHT_DECAY = WEIGHT_DECAY
 PATIENCE = PATIENCE
 
 # assign model-specific variable

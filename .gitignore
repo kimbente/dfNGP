@@ -1,5 +1,4 @@
 __pycache__/
-figures_real/*
 
 ### RESULTS ###
 # Ignore all contents of results_sim model subfolders
@@ -19,7 +18,7 @@ results_real/dfNN/*
 results_real/GP/*
 results_real/PINN/*
 
-# Ignore all contents of figure subfolders, show vis notebook
+# Ignore all contents of figure subfolders, but show vis notebook
 figures_sim/cmaps/*
 figures_sim/divergence/*
 figures_sim/errors/*
@@ -33,4 +32,7 @@ figures_sim/samples_with_error/*
 figures_sim/samples_with_uncertainty/*
 figures_sim/train_lines/*
 figures_sim/variance/*
+
+figures_real/*
+figures_real/*
 

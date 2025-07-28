@@ -147,6 +147,7 @@ To aid navigation, we provide a list of folders and files (each in alphabatical 
 - [README_assets](README_assets) stores the visualisations used within this README.md
 - [results_real](results_real)
     - [generate_latex_results_table_real.py](latex_table/generate_latex_results_table_real.py) generates a latex format table from the real experiment results (truncating, formatting). The generated file is called generated_latex_results_table_real.txt and saved in the same directory.
+    - [visualise_real_experiments_training_hps.ipynb](results_sim/visualise_real_experiments_training_hps.ipynb) visualises the training evolution, hyperparameter evolutions and predictions from RUN 1 of each model as a consistency check and to provide more insight into model training.
     - Due to size constraints, we do not upload all experimental outputs to GitHub. However, running the experiments will automatically generate and save all results and outputs in this directory.
 - [results_sim](results_sim)
     - [generate_latex_results_table_sim.py](latex_table/generate_latex_results_table_sim.py) generates latex format table from SIM experiment results (truncating, formatting). The generated file is called generated_latex_results_table_sim.txt and saved in the same directory.

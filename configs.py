@@ -17,7 +17,7 @@ dfGP_SIM_LEARNING_RATE = 0.005
 dfGPcm_SIM_LEARNING_RATE = 0.005 
 dfNGP_SIM_LEARNING_RATE = 0.005 # lr x 0.02 for NN mean function params
 dfNN_SIM_LEARNING_RATE = 0.005
-GP_SIM_LEARNING_RATE = 0.005 
+GP_SIM_LEARNING_RATE = 0.005
 PINN_SIM_LEARNING_RATE = 0.005
 
 # SIM-specific hyperparameters
@@ -41,8 +41,9 @@ dfGP_REAL_LEARNING_RATE = 0.005
 dfGPcm_REAL_LEARNING_RATE = 0.005
 dfNGP_REAL_LEARNING_RATE = 0.005 # lr x 0.2 for NN mean function params
 dfNN_REAL_LEARNING_RATE = 0.005 
-GP_REAL_LEARNING_RATE = 0.005 
-PINN_REAL_LEARNING_RATE = 0.001 # requires lower lr for smooth descent on train
+GP_REAL_LEARNING_RATE = 0.005
+# NOTE: PINN requires slightly lower lr for smooth descent on real train, otherwise early stopping triggers soon
+PINN_REAL_LEARNING_RATE = 0.001
 
 # infer at higher resolution grid across the domain 
 # NOTE: for visualisations only, not evaluations
@@ -67,7 +68,6 @@ GP_PATIENCE = 50 # NOTE: GP convergence is more smooth so less patience is neede
 
 # WEIGHT_DECAY is L2 regularisation; `decay` because it pulls weights towards 0
 WEIGHT_DECAY = 1e-4 # i.e. 0.0001
-dfNN_SIM_WEIGHT_DECAY = 1e-2 # i.e. 0.01
 
 BATCH_SIZE = 32
 

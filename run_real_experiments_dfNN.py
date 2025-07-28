@@ -253,11 +253,6 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         # Load the best model for this "run"
         dfNN_model.load_state_dict(best_model_state)
 
-        if run == 0:
-            # Save best dfNN model for region
-            pretrained_model_path = f"dfNN_pretrained_real/dfNN_pretrained_{region_name}.pth"
-            torch.save(dfNN_model.state_dict(), pretrained_model_path)
-
         # Announce what we are doing
         print(f"Run {run + 1}/{NUM_RUNS}, Training of {model_name} complete for {region_name.upper()}. Restored best model.")
 
