@@ -90,7 +90,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
     # The train and test tensors have the following columns:
     # [:, 0] = x
     # [:, 1] = y
-    # [:, 2] = surface elevation (s)
+    # [:, 2] = surface elevation (s) (not used currently)
     # [:, 3] = ice flux in x direction (u)
     # [:, 4] = ice flux in y direction (v)
 
@@ -143,6 +143,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
         # NOTE: This was needed
         x_train = x_train.clone().detach().requires_grad_(True)
+        y_train = y_train.clone().detach()
 
         model = dfNGP(
             x_train,
@@ -168,8 +169,9 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         
         ### INITIALISE HYPERPARAMETERS ###
         # Overwrite default lengthscale hyperparameter initialisation with REAL data lengthscale range init
-        model.base_kernel.lengthscale = torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE)
-        
+        # NOTE: Prior: First lengthscale can be assumed to be smaller than the second lengthscale from training data
+        model.base_kernel.lengthscale = torch.sort(torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE), dim = -1)[0]
+
         # Overwrite default outputscale variance initialisation with sample from prior
         outputscale_sample = outputscale_prior.sample().to(device)
         model.covar_module.outputscale = outputscale_sample
@@ -180,9 +182,9 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         # NOTE: This part is different from dfGP
         optimizer = torch.optim.AdamW([
             {"params": model.mean_module.parameters(), 
-             "weight_decay": WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE * 0.2},
+             "weight_decay": WEIGHT_DECAY * 100, "lr": MODEL_LEARNING_RATE * 0.2},
             {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
-             "weight_decay":  WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE},
+             "weight_decay":  WEIGHT_DECAY * 0, "lr": MODEL_LEARNING_RATE},
             ])
         
         # Use ExactMarginalLogLikelihood
@@ -382,10 +384,18 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             pred_dist_test, y_test.to(device)).mean()).item()
         test_MAE = gpytorch.metrics.mean_absolute_error(
             pred_dist_test, y_test.to(device)).mean().item()
-        test_NLL = gpytorch.metrics.negative_log_predictive_density(
-            pred_dist_test, y_test.to(device)).item()
-        test_QCE = quantile_coverage_error_2d(
-            pred_dist_test, y_test.to(device), quantile = 95.0).item()
+        try:
+            test_NLL = gpytorch.metrics.negative_log_predictive_density(
+                pred_dist_test, y_test.to(device)).item()
+        except Exception as e:
+            test_NLL = float('nan')
+            print("Failed to compute NLL:", e)
+        try:
+            test_QCE = quantile_coverage_error_2d(
+                pred_dist_test, y_test.to(device), quantile = 95.0).item()
+        except Exception as e:
+            test_QCE = float('nan')
+            print("Failed to compute QCE:", e)
         ## NOTE: It is important to use the absolute value of the divergence field, since both positive and negative deviations are violations and shouldn't cancel each other out 
         test_MAD = test_div_field.abs().mean().item()
 

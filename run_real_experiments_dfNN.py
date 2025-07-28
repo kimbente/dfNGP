@@ -93,7 +93,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
     # The train and test tensors have the following columns:
     # [:, 0] = x
     # [:, 1] = y
-    # [:, 2] = surface elevation (s)
+    # [:, 2] = surface elevation (s) (not used currently)
     # [:, 3] = ice flux in x direction (u)
     # [:, 4] = ice flux in y direction (v)
 

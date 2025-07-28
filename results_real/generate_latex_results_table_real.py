@@ -66,7 +66,7 @@ for i, region_name in enumerate(regions):
         mad_mean = "{:.4f}".format(mean_row["Test MAD"])[:5]
         mad_std = "{:.4f}".format(std_row["Test MAD"])[:5]
 
-        # NLL handling
+         # NLL handling
         if "Test NLL" in mean_row.index:
             nll_mean_val = mean_row["Test NLL"]
             nll_std_val = std_row["Test NLL"]
@@ -81,6 +81,15 @@ for i, region_name in enumerate(regions):
                 nll_str = nll_str_raw
         else:
             nll_str = r"\footnotesize{n.a.}"
+
+        if "Test QCE" in mean_row.index:
+            qce_mean_val = mean_row["Test QCE"]
+            qce_std_val = std_row["Test QCE"]
+            qce_mean = "{:.4f}".format(qce_mean_val)[:5]
+            qce_std = "{:.4f}".format(qce_std_val)[:5]
+            qce_str = f"{qce_mean} \\footnotesize{{± {qce_std}}}"
+        else:
+            qce_str = r"\footnotesize{n.a.}"
 
         # Highlight if this is the best RMSE
         rmse_str_raw = f"{rmse_mean} \\footnotesize{{± {rmse_std}}}"
@@ -106,7 +115,7 @@ for i, region_name in enumerate(regions):
             f"{rmse_str} & "
             f"{mae_mean} \\footnotesize{{± {mae_std}}} & "
             f"{nll_str} & "
-            f"{full_nll_str} & "
+            f"{qce_str} & "
             f"{mad_str} \\\\"
         )
         latex_lines.append(row)

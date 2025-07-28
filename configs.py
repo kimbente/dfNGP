@@ -60,7 +60,7 @@ TRACK_EMISSIONS_BOOL = True
 # Define how often to print training progress
 PRINT_FREQUENCY = 50
 
-NUM_RUNS = 8 
+NUM_RUNS = 3
 MAX_NUM_EPOCHS = 2000
 
 PATIENCE = 100 # Stop after {PATIENCE} epochs with no improvement
@@ -114,7 +114,8 @@ SCALE_INPUT_region_lower_byrd = 30
 SCALE_INPUT_region_mid_byrd = 70
 SCALE_INPUT_region_upper_byrd = 70
 
-# NOTE: This corresponds to a l^2 range of (4.0, 25.0) (domain is e.g. [0, 70])
+# NOTE: This corresponds to a l^2 range of (25.0, 64.0) (domain is e.g. [0, 70])
 REAL_L_RANGE = (5.0, 8.0)
 REAL_NOISE_VAR_RANGE = (0.01, 0.05)
-REAL_OUTPUTSCALE_VAR_RANGE = (1.0, 2.0)
+REAL_OUTPUTSCALE_VAR_RANGE = (1.0, 1.8) # successful
+REAL_OUTPUTSCALE_VAR_RANGE = (0.8, 1.4)
