@@ -93,14 +93,14 @@ class dfRBFKernel(RBFKernel):
             # (..., N, d, M): swops last two dims
             directional_scaled_diffs = torch.transpose(directional_scaled_diffs, -1, -2).contiguous()
 
-            # torch.Size([..., N, d * M]) where the first M indices are d1 and the latter M indices are d2 for 2d
-            # d1 diffs are the left block, d2 diffs are the right block
+            # torch.Size([..., N, d * M]) where the first M indices are d2 and the latter M indices are d1 for 2d
+            # d2 diffs are the left block, d1 diffs are the right block
             directional_scaled_diffs_N_rows_wide = directional_scaled_diffs.view(*batch_shape, N, d * M)
             
             # transpose swop N and M so makes torch.Size([..., M, d, N])
             # reshape torch.Size([..., M, d * N])
             directional_scaled_diffs_M_rows_wide = directional_scaled_diffs.transpose(-1, -3).reshape(*batch_shape, M, d * N)
-            # d1 diffs are the upper block, d2 diffs are the lower block
+            # d2 diffs are the upper block, d1 diffs are the lower block
             directional_scaled_diffs_2N_rows_tall = directional_scaled_diffs_M_rows_wide.transpose(-1, -2)
 
             # 1) Kernel block
@@ -117,9 +117,9 @@ class dfRBFKernel(RBFKernel):
             # Second term: Last axis (columns) is repeated, second last axis (rows) stays the same
             directional_scaled_diffs_two_columns = directional_scaled_diffs_2N_rows_tall.repeat([*([1] * (n_batch_dims + 1)), d])
 
-            # Upper left is r_1**2/l_1**4
+            # Upper left is r_2**2/l_2**4
             # Upper right and lower left are r_1 * r_2 / (l_1**2 * l_2**2)
-            # Lower right is r_2**2 / l_2**4
+            # Lower right is r_1**2 / l_1**4
             directional_scaled_diffs_product_block = directional_scaled_diffs_two_rows * directional_scaled_diffs_two_columns
 
             ### STEP 5: SIGN BLOCK ###
@@ -134,8 +134,8 @@ class dfRBFKernel(RBFKernel):
             ### STEP 6: KRONECKER PRODUCT BLOCK ###
             # torch.Size([..., N * d, M * d])
             kp = KroneckerProductLinearOperator(
-                        # Upper left block is (1/l1^2)
-                        # Lower right block is (1/l2^2)
+                        # Upper left block is (1/l2^2)
+                        # Lower right block is (1/l1^2)
                         # Upper right and lower left blocks are (0)
                         # HACK: Flip the last axis to match the dfRBF ordering. This is another change from the RBF grad kernel.
                         torch.eye(d, d, device = x1.device, dtype = x1.dtype).repeat(*batch_shape, 1, 1) / self.lengthscale.flip(-1).pow(2),
@@ -144,8 +144,8 @@ class dfRBFKernel(RBFKernel):
                     )
             
             ### STEP 6: SUBTRACT BLOCKS ###
-            # Upper left block is (1/l1^2 - product)
-            # Lower right block is (1/l2^2 - product)
+            # Upper left block is (1/l2^2 - product)
+            # Lower right block is (1/l1^2 - product)
             # Upper right and lower left blocks are (0 - product), resulting in the negative product
             subtracted_blocks = kp.to_dense() - directional_scaled_diffs_product_block
             # repeat K_rbf d * d times

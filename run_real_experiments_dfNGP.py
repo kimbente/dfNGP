@@ -184,7 +184,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             {"params": model.mean_module.parameters(), 
              "weight_decay": WEIGHT_DECAY * 100, "lr": MODEL_LEARNING_RATE * 0.2},
             {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
-             "weight_decay":  WEIGHT_DECAY * 0, "lr": MODEL_LEARNING_RATE},
+             "weight_decay": 0, "lr": MODEL_LEARNING_RATE},
             ])
         
         # Use ExactMarginalLogLikelihood

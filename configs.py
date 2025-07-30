@@ -60,13 +60,14 @@ TRACK_EMISSIONS_BOOL = True
 # Define how often to print training progress
 PRINT_FREQUENCY = 50
 
-NUM_RUNS = 3
+NUM_RUNS = 8
 MAX_NUM_EPOCHS = 2000
 
 PATIENCE = 100 # Stop after {PATIENCE} epochs with no improvement
 GP_PATIENCE = 50 # NOTE: GP convergence is more smooth so less patience is needed
 
 # WEIGHT_DECAY is L2 regularisation; `decay` because it pulls weights towards 0
+# Only for NN parameters, not for GP parameters
 WEIGHT_DECAY = 1e-4 # i.e. 0.0001
 
 BATCH_SIZE = 32
@@ -76,7 +77,8 @@ W_PINN_DIV_WEIGHT = 0.3
 
 # FOR SIM
 # Noise parameter for training: independent Gaussian noise to perturb inputs
-# NOTE: This corresponds to a true noise variance of 0.0004
+# NOTE: This corresponds to a true noise variance of 0.0004 (contained in initialisation range)
+# We do scale by the var of each experiment however (which is slighly <1 or >1)
 STD_GAUSSIAN_NOISE = 0.02
 
 ##########################################

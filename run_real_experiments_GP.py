@@ -12,7 +12,7 @@ from gpytorch_models import GP
 
 # import configs to we can access the hypers with getattr
 import configs
-from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, PRINT_FREQUENCY
+from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
 from configs import SCALE_INPUT_region_lower_byrd, SCALE_INPUT_region_mid_byrd, SCALE_INPUT_region_upper_byrd
 # We overwrite these two:
@@ -27,7 +27,6 @@ SCALE_INPUT = {
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
 NUM_RUNS = NUM_RUNS
-WEIGHT_DECAY = WEIGHT_DECAY
 PATIENCE = PATIENCE
 
 # assign model-specific variable
@@ -159,9 +158,10 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
         # Overwrite lengthscale hyperparameter initialisation because we have a different input scale.
         model.covar_module.data_covar_module.lengthscale = torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE)
+
         # Use other default initialisations from SIM experiments
-        
-        optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = WEIGHT_DECAY)
+        # GP models do not need weight decay, so we set it to 0
+        optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = 0)
         
         # Use ExactMarginalLogLikelihood
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)

@@ -180,11 +180,12 @@ for sim_name, sim_func in simulations.items():
             likelihood,
             ).to(device)
         
+        # GP models do not need weight decay, so we set it to 0
         optimizer = torch.optim.AdamW([
             {"params": model.mean_module.parameters(), 
              "weight_decay": WEIGHT_DECAY, "lr": (0.02 * MODEL_LEARNING_RATE)},
             {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
-             "weight_decay":  WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE},
+             "weight_decay":  0, "lr": MODEL_LEARNING_RATE},
             ])
                 
         # Use ExactMarginalLogLikelihood

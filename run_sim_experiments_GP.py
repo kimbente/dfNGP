@@ -30,7 +30,7 @@ from gpytorch_models import GP
 
 # import configs to we can access the hypers with getattr
 import configs
-from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, PRINT_FREQUENCY
+from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
 # also import x_test grid size and std noise for training data
 from configs import N_SIDE, STD_GAUSSIAN_NOISE
 from configs import TRACK_EMISSIONS_BOOL
@@ -38,7 +38,6 @@ from configs import TRACK_EMISSIONS_BOOL
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
 NUM_RUNS = NUM_RUNS
-WEIGHT_DECAY = WEIGHT_DECAY
 PATIENCE = PATIENCE
 
 # assign model-specific variable
@@ -182,8 +181,8 @@ for sim_name, sim_func in simulations.items():
         
 
         # NOTE: model parameters contains likelihood parameters as well
-        optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = WEIGHT_DECAY)
-        
+        optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = 0)
+
         # Use ExactMarginalLogLikelihood as the reward i.e. inverse loss function
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
