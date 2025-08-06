@@ -126,6 +126,9 @@ Go through the IPython notebook `real_data_step3_generate_train_test_regions.ipy
 
 To aid navigation, we provide a list of folders and files (each in alphabatical order), along with brief descriptions of their contents. Align with the automatic ordering of github, we start with folders, followed by files.
 
+- [analyse_real_data](analyse_real_data) contains analyses of supplementary data sets concerning Antarctica's Byrd glacier, to check that our assumptions for a steady-state flow are met.
+    - [analyse_RACMO_surface_mass_balance_Byrd_region.ipynb](analyse_real_data/analyse_RACMO_surface_mass_balance_Byrd_region.ipynb) shows that with only **< 5 cm / year surface mass gain** for our three selected regions in Byrd glacier, this term can be neglected.
+    - [analyse_CryoSAT_surface_elevation_changes_over_time_Byrd.ipynb](analyse_real_data/analyse_CryoSAT_surface_elevation_changes_over_time_Byrd.ipynb) shows that thinning of the ice sheet around our selected region in Byrd glacier has also been negligable at **< 2 cm / year average elevation decrease** over the past 14 years.
 - [data](data)
     - [real_data](data/real_data) contains train and test data as pytorch tensors for the three selected regions of Byrd glacier, lower, mid and upper.
         - [corner_coordinates_byrd_for_velocity.csv](data/real_data/corner_coordinates_byrd_for_velocity.csv) contains coordinates used for preprocessing the ice velocity data before combining it with the ice thickness measurements.

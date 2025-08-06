@@ -14,15 +14,8 @@ from gpytorch_models import GP
 import configs
 from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
-from configs import SCALE_INPUT_region_lower_byrd, SCALE_INPUT_region_mid_byrd, SCALE_INPUT_region_upper_byrd
-# We overwrite these two:
-from configs import REAL_L_RANGE, REAL_NOISE_VAR_RANGE
-
-SCALE_INPUT = {
-    "region_lower_byrd": SCALE_INPUT_region_lower_byrd,
-    "region_mid_byrd": SCALE_INPUT_region_mid_byrd,
-    "region_upper_byrd": SCALE_INPUT_region_upper_byrd,
-}
+# We overwrite this parameter's initialisation with REAL data noise range
+from configs import REAL_NOISE_VAR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
@@ -68,9 +61,6 @@ if TRACK_EMISSIONS_BOOL:
 #############################
 
 for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]:
-    # Select scalar to scale the input coordinates
-    # HACK: This helps numerical stability and conserved lengthscales units
-    SCALE_DOMAIN = SCALE_INPUT[region_name]
 
     print(f"\nTraining for {region_name.upper()}...")
 
@@ -103,10 +93,6 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
     # test
     x_test = test[:, [0, 1]].to(device)
     y_test = test[:, [3, 4]].to(device)
-
-    # HACK: We scale the data to a larger domain to avoid numerical issues
-    x_test = x_test * SCALE_DOMAIN
-    x_train = x_train * SCALE_DOMAIN
 
     # NOTE: Here we estimate the noise variance 
 
@@ -148,16 +134,8 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             likelihood
             ).to(device)
 
-        # CONSTRAINT: Domain-informed noise variance constraint
-        model.likelihood.register_constraint(
-            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
-        )
-
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)      
-
-        # Overwrite lengthscale hyperparameter initialisation because we have a different input scale.
-        model.covar_module.data_covar_module.lengthscale = torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE)
 
         # Use other default initialisations from SIM experiments
         # GP models do not need weight decay, so we set it to 0
@@ -241,6 +219,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
                 # Reconstruct B first via FF.T + D where F is the covar_factor and D is the diagonal matrix of task variances var
                 B = model.covar_module.task_covar_module.covar_factor @ model.covar_module.task_covar_module.covar_factor.T + torch.diag(model.covar_module.task_covar_module.var)
+                
                 # Extract items
                 Buu_over_epochs[epoch] = B[0, 0].item()
                 Buv_over_epochs[epoch] = B[0, 1].item()

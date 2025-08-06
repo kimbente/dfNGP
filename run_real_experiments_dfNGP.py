@@ -14,14 +14,7 @@ from gpytorch_models import dfNGP
 import configs
 from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, N_SIDE_INFERENCE, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
-from configs import SCALE_INPUT_region_lower_byrd, SCALE_INPUT_region_mid_byrd, SCALE_INPUT_region_upper_byrd
-from configs import REAL_L_RANGE, REAL_NOISE_VAR_RANGE, REAL_OUTPUTSCALE_VAR_RANGE
-
-SCALE_INPUT = {
-    "region_lower_byrd": SCALE_INPUT_region_lower_byrd,
-    "region_mid_byrd": SCALE_INPUT_region_mid_byrd,
-    "region_upper_byrd": SCALE_INPUT_region_upper_byrd,
-}
+from configs import REAL_NOISE_VAR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
@@ -68,7 +61,6 @@ if TRACK_EMISSIONS_BOOL:
 #############################
 
 for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]:
-    SCALE_DOMAIN = SCALE_INPUT[region_name]
 
     print(f"\nTraining for {region_name.upper()}...")
 
@@ -101,11 +93,6 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
     # test
     x_test = test[:, [0, 1]].to(device)
     y_test = test[:, [3, 4]].to(device)
-
-    # HACK: Scaling helps with numerical stability
-    # Units are not in km 
-    x_test = x_test * SCALE_DOMAIN
-    x_train = x_train * SCALE_DOMAIN
 
     # NOTE: Here we estimate the noise variance 
 
@@ -150,39 +137,18 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             y_train, 
             likelihood
             ).to(device)
-        
-        ### REGISTER PRIORS & CONSTRAINTS ###
-        # PRIOR: outputscale variance
-        outputscale_prior = gpytorch.priors.SmoothedBoxPrior(
-            REAL_OUTPUTSCALE_VAR_RANGE[0], REAL_OUTPUTSCALE_VAR_RANGE[1]).to(device)
-        
-        model.covar_module.register_prior(
-            "outputscale_prior",
-            outputscale_prior,
-            "raw_outputscale"
-        )
-
-        # CONSTRAINT: Domain-informed noise variance constraint
-        model.likelihood.register_constraint(
-            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
-        )
-        
-        ### INITIALISE HYPERPARAMETERS ###
-        # Overwrite default lengthscale hyperparameter initialisation with REAL data lengthscale range init
-        # NOTE: Prior: First lengthscale can be assumed to be smaller than the second lengthscale from training data
-        model.base_kernel.lengthscale = torch.sort(torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE), dim = -1)[0]
-
-        # Overwrite default outputscale variance initialisation with sample from prior
-        outputscale_sample = outputscale_prior.sample().to(device)
-        model.covar_module.outputscale = outputscale_sample
 
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)
+
+        print(f"Initial outputscale: {model.covar_module.outputscale.item():.4f}")
+        print(f"Initial lengthscale: {model.base_kernel.lengthscale[0, 0].item():.4f}, {model.base_kernel.lengthscale[0, 1].item():.4f}")
+        print(f"Initial noise variance: {model.likelihood.noise.item():.4f}")
         
         # NOTE: This part is different from dfGP
         optimizer = torch.optim.AdamW([
             {"params": model.mean_module.parameters(), 
-             "weight_decay": WEIGHT_DECAY * 100, "lr": MODEL_LEARNING_RATE * 0.2},
+             "weight_decay": WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE * 0.2},
             {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
              "weight_decay": 0, "lr": MODEL_LEARNING_RATE},
             ])
@@ -312,15 +278,16 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         if run == 0:
 
             _, x_grid = make_grid(n_side = N_SIDE_INFERENCE) # infer at higher res and downsample later
-            x_grid = x_grid * SCALE_DOMAIN # scale grid to match training data
             x_grid.requires_grad_(True) # need gradients for divergence field
 
+            mean_module_dfNN = model.mean_module(x_grid.to(device))  # Ensure mean module is called to avoid warnings
             dist_grid = model(x_grid.to(device))
             pred_dist_grid = likelihood(dist_grid)
 
             torch.save(pred_dist_grid.mean, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_mean_predictions.pt")
             torch.save(pred_dist_grid.covariance_matrix, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_covar_predictions.pt")
             torch.save(dist_grid.covariance_matrix, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_latent_covar_predictions.pt")
+            torch.save(mean_module_dfNN, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_mean_module.pt")
 
         ### ---------------------------------- ###
 
@@ -333,7 +300,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         pred_dist_test = likelihood(dist_test)
 
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)
+            warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)  # Ensure mean module is called to avoid warnings
             dist_train = model(x_train_grad)
             pred_dist_train = likelihood(dist_train)
         

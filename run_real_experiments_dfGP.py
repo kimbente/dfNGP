@@ -14,15 +14,7 @@ from gpytorch_models import dfGP
 import configs
 from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
-from configs import REAL_L_RANGE, REAL_OUTPUTSCALE_VAR_RANGE, REAL_NOISE_VAR_RANGE
-from configs import SCALE_INPUT_region_lower_byrd, SCALE_INPUT_region_mid_byrd, SCALE_INPUT_region_upper_byrd
-from configs import REAL_L_RANGE, REAL_NOISE_VAR_RANGE, REAL_OUTPUTSCALE_VAR_RANGE
-
-SCALE_INPUT = {
-    "region_lower_byrd": SCALE_INPUT_region_lower_byrd,
-    "region_mid_byrd": SCALE_INPUT_region_mid_byrd,
-    "region_upper_byrd": SCALE_INPUT_region_upper_byrd,
-}
+from configs import REAL_NOISE_VAR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
@@ -69,8 +61,6 @@ if TRACK_EMISSIONS_BOOL:
 
 for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]:
 
-    SCALE_DOMAIN = SCALE_INPUT[region_name]
-
     print(f"\nTraining for {region_name.upper()}...")
 
     # Store metrics for the current region (used for *metrics_summary* report and *metrics_per_run*)
@@ -102,11 +92,6 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
     # test
     x_test = test[:, [0, 1]].to(device)
     y_test = test[:, [3, 4]].to(device)
-
-    # HACK: Scaling helps with numerical stability
-    # Units are not in km 
-    x_test = x_test * SCALE_DOMAIN
-    x_train = x_train * SCALE_DOMAIN
 
     # NOTE: Here we estimate the noise variance 
 
@@ -147,34 +132,11 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             y_train, 
             likelihood
             ).to(device)
-        
-        ### REGISTER PRIORS & CONSTRAINTS ###
-        # PRIOR: outputscale variance
-        outputscale_prior = gpytorch.priors.SmoothedBoxPrior(
-            REAL_OUTPUTSCALE_VAR_RANGE[0], REAL_OUTPUTSCALE_VAR_RANGE[1]).to(device)
-        
-        model.covar_module.register_prior(
-            "outputscale_prior",
-            outputscale_prior,
-            "raw_outputscale"
-        )
-
-        # CONSTRAINT: Domain-informed noise variance constraint
-        model.likelihood.register_constraint(
-            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
-        )
-        
-        ### INITIALISE HYPERPARAMETERS ###
-        # Overwrite default lengthscale hyperparameter initialisation with REAL data lengthscale range init
-        model.base_kernel.lengthscale = torch.empty([1, 2], device = device).uniform_( * REAL_L_RANGE)
-        
-        # Overwrite default outputscale variance initialisation with sample from prior
-        outputscale_sample = outputscale_prior.sample().to(device)
-        model.covar_module.outputscale = outputscale_sample
 
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)
         
+        # GP models do not require weight decay
         optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = 0)
         
         # Use ExactMarginalLogLikelihood
@@ -182,6 +144,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
         model.train()
         likelihood.train()
+        
         # _________________
         # BEFORE EPOCH LOOP
         

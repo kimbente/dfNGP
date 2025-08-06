@@ -270,7 +270,6 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 # Compute train loss for loss convergence plot
                 train_rmse_loss = torch.sqrt(criterion(y_train_pred, y_train.to(device))).item()
                 train_PINN_loss = (1 - W_PINN_DIV_WEIGHT) * train_rmse_loss + W_PINN_DIV_WEIGHT * compute_divergence_field(y_train_pred, x_train).abs().mean().item()
-                # TODO: Maybe detach here
 
                 # Test No batches, but full dataset
                 y_test_pred = PINN_model(x_test.to(device).requires_grad_())

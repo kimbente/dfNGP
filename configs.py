@@ -42,7 +42,7 @@ dfGPcm_REAL_LEARNING_RATE = 0.005
 dfNGP_REAL_LEARNING_RATE = 0.005 # lr x 0.2 for NN mean function params
 dfNN_REAL_LEARNING_RATE = 0.005 
 GP_REAL_LEARNING_RATE = 0.005
-# NOTE: PINN requires slightly lower lr for smooth descent on real train, otherwise early stopping triggers soon
+# NOTE: PINN requires slightly lower lr for smooth descent on real train
 PINN_REAL_LEARNING_RATE = 0.001
 
 # infer at higher resolution grid across the domain 
@@ -111,13 +111,5 @@ NOISE_VAR_RANGE = (0.0001, 0.0049)
 ### REAL (df)GP HYPERPARAMETERS ###
 ###################################
 
-# Scale input bacl to ~km
-SCALE_INPUT_region_lower_byrd = 30
-SCALE_INPUT_region_mid_byrd = 70
-SCALE_INPUT_region_upper_byrd = 70
-
-# NOTE: This corresponds to a l^2 range of (25.0, 64.0) (domain is e.g. [0, 70])
-REAL_L_RANGE = (5.0, 8.0)
-REAL_NOISE_VAR_RANGE = (0.01, 0.05)
-REAL_OUTPUTSCALE_VAR_RANGE = (1.0, 1.8) # successful
-REAL_OUTPUTSCALE_VAR_RANGE = (0.8, 1.4)
+# NOTE: Initialise with higher noise variance range for real data
+REAL_NOISE_VAR_RANGE = (0.005, 0.03)
