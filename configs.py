@@ -61,6 +61,7 @@ TRACK_EMISSIONS_BOOL = True
 PRINT_FREQUENCY = 50
 
 NUM_RUNS = 8
+# NUM_RUNS = 3
 MAX_NUM_EPOCHS = 2000
 
 PATIENCE = 100 # Stop after {PATIENCE} epochs with no improvement
@@ -112,4 +113,6 @@ NOISE_VAR_RANGE = (0.0001, 0.0049)
 ###################################
 
 # NOTE: Initialise with higher noise variance range for real data
-REAL_NOISE_VAR_RANGE = (0.005, 0.03)
+# REAL_NOISE_VAR_RANGE = (0.005, 0.03)
+REAL_NOISE_VAR_RANGE = (0.01, 0.025) # try 
+REAL_OUTPUTSCALE_VAR_RANGE = (0.1, 0.4)

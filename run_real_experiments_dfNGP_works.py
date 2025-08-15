@@ -1,5 +1,5 @@
 # REAL DATA EXPERIMENTS
-# RUN WITH python run_real_experiments_dfGP.py
+# RUN WITH python run_real_experiments_dfNGP.py
 #               _                 _   _      
 #              | |               | | (_)     
 #    __ _ _ __ | |_ __ _ _ __ ___| |_ _  ___ 
@@ -7,18 +7,22 @@
 #  | (_| | | | | || (_| | | | (__| |_| | (__ 
 #   \__,_|_| |_|\__\__,_|_|  \___|\__|_|\___|
 # 
-model_name = "dfGP"
-from gpytorch_models import dfGP
+model_name = "dfNGP"
+from gpytorch_models import dfNGP
 
 # import configs to we can access the hypers with getattr
 import configs
-from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
+from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, N_SIDE_INFERENCE, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
-from configs import REAL_NOISE_VAR_RANGE
+from configs import REAL_NOISE_VAR_RANGE, REAL_OUTPUTSCALE_VAR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
+# TODO
+# MAX_NUM_EPOCHS = 1500  # For testing, you can change this to a smaller number
 NUM_RUNS = NUM_RUNS
+# NUM_RUNS = 3  # For testing, you can change this to a smaller number
+WEIGHT_DECAY = WEIGHT_DECAY
 PATIENCE = PATIENCE
 
 # assign model-specific variable
@@ -34,7 +38,7 @@ import gpytorch
 
 # universals 
 from metrics import compute_divergence_field, quantile_coverage_error_2d
-from utils import set_seed
+from utils import set_seed, make_grid
 import gc
 import warnings
 set_seed(42)
@@ -52,7 +56,7 @@ start_time = time.time()  # Start timing after imports
 ### START TRACKING EXPERIMENT EMISSIONS ###
 if TRACK_EMISSIONS_BOOL:
     from codecarbon import EmissionsTracker
-    tracker = EmissionsTracker(project_name = "dfGP_real_experiments", output_dir = MODEL_REAL_RESULTS_DIR)
+    tracker = EmissionsTracker(project_name = "dfNGP_real_experiments", output_dir = MODEL_REAL_RESULTS_DIR)
     tracker.start()
 
 #############################
@@ -120,14 +124,18 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         print(f"\n--- Training Run {run + 1}/{NUM_RUNS} ---")
 
         # Initialise the likelihood for the GP model (estimates noise)
-        # NOTE: we use a multitask likelihood for the dfGP model but with a global noise term
+        # NOTE: we use a multitask likelihood for the dfNGP model but with a global noise term
         likelihood = gpytorch.likelihoods.MultitaskGaussianLikelihood(
             num_tasks = 2,
             has_global_noise = True, 
             has_task_noise = False, # HACK: This still needs to be manually turned off
             ).to(device)
 
-        model = dfGP(
+        # NOTE: This was needed
+        x_train = x_train.clone().detach().requires_grad_(True)
+        y_train = y_train.clone().detach()
+
+        model = dfNGP(
             x_train,
             y_train, 
             likelihood
@@ -141,16 +149,24 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)
+
+        print(f"Initial outputscale: {model.covar_module.outputscale.item():.4f}")
+        print(f"Initial lengthscale: {model.base_kernel.lengthscale[0, 0].item():.4f}, {model.base_kernel.lengthscale[0, 1].item():.4f}")
+        print(f"Initial noise variance: {model.likelihood.noise.item():.4f}")
         
-        # GP models do not require weight decay
-        optimizer = torch.optim.AdamW(model.parameters(), lr = MODEL_LEARNING_RATE, weight_decay = 0)
+        # NOTE: This part is different from dfGP
+        optimizer = torch.optim.AdamW([
+            {"params": model.mean_module.parameters(), 
+             "weight_decay": WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE * 0.1},
+            {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
+             "weight_decay": 0, "lr": MODEL_LEARNING_RATE},
+            ])
         
         # Use ExactMarginalLogLikelihood
         mll = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model)
 
         model.train()
         likelihood.train()
-        
         # _________________
         # BEFORE EPOCH LOOP
         
@@ -160,6 +176,8 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             train_losses_NLML_over_epochs = torch.zeros(MAX_NUM_EPOCHS) # objective
             train_losses_RMSE_over_epochs = torch.zeros(MAX_NUM_EPOCHS) # by-product
             # monitor performance transfer to test (only RMSE easy to calc without covar)
+            # TODO
+            test_losses_NLML_over_epochs = torch.zeros(MAX_NUM_EPOCHS)
             test_losses_RMSE_over_epochs = torch.zeros(MAX_NUM_EPOCHS)
 
             # NOTE: Here, we estimate the noise
@@ -186,11 +204,14 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
 
             # Do a step
             optimizer.zero_grad()
+
+            x_train = x_train.clone().detach().requires_grad_(True)
             # model outputs a multivariate normal distribution
             train_pred_dist = model(x_train.to(device))
             # Train on noisy or targets
             # NOTE: We only have observational y_train i.e. noisy data
             loss = - mll(train_pred_dist, y_train.to(device))  # negative marginal log likelihood
+            
             loss.backward()
             optimizer.step()
 
@@ -203,15 +224,20 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)
                     train_pred_dist = model(x_train.to(device))
-                test_pred_dist = model(x_test.to(device))
+                test_pred_dist = likelihood(model(x_test.to(device)))
 
                 # Compute RMSE for training and test predictions (given true data, not noisy)
                 train_RMSE = torch.sqrt(gpytorch.metrics.mean_squared_error(train_pred_dist, y_train.to(device)).mean())
                 test_RMSE = torch.sqrt(gpytorch.metrics.mean_squared_error(test_pred_dist, y_test.to(device)).mean())
 
+                test_NLL = gpytorch.metrics.negative_log_predictive_density(
+                    test_pred_dist, y_test.to(device))
+
                 # Save losses for convergence plot
                 train_losses_NLML_over_epochs[epoch] = loss.item()
                 train_losses_RMSE_over_epochs[epoch] = train_RMSE.item()
+                # TODO
+                test_losses_NLML_over_epochs[epoch] = test_NLL.item()
                 test_losses_RMSE_over_epochs[epoch] = test_RMSE.item()
 
                 # Save evolution of hypers for convergence plot
@@ -265,6 +291,23 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         model.eval()
         likelihood.eval()
 
+        ### --- dfNGP only: grid inference --- ###
+        if run == 0:
+
+            _, x_grid = make_grid(n_side = N_SIDE_INFERENCE) # infer at higher res and downsample later
+            x_grid.requires_grad_(True) # need gradients for divergence field
+
+            mean_module_dfNN = model.mean_module(x_grid.to(device))  # Ensure mean module is called to avoid warnings
+            dist_grid = model(x_grid.to(device))
+            pred_dist_grid = likelihood(dist_grid)
+
+            torch.save(pred_dist_grid.mean, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_mean_predictions.pt")
+            torch.save(pred_dist_grid.covariance_matrix, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_covar_predictions.pt")
+            torch.save(dist_grid.covariance_matrix, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_latent_covar_predictions.pt")
+            torch.save(mean_module_dfNN, f"{MODEL_REAL_RESULTS_DIR}_grid_inference/{region_name}_{model_name}_grid_mean_module.pt")
+
+        ### ---------------------------------- ###
+
         # Need gradients for autograd divergence: We clone and detach
         x_test_grad = x_test.to(device).clone().requires_grad_(True)
         x_train_grad = x_train.to(device).clone().requires_grad_(True)
@@ -274,7 +317,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         pred_dist_test = likelihood(dist_test)
 
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)
+            warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)  # Ensure mean module is called to avoid warnings
             dist_train = model(x_train_grad)
             pred_dist_train = likelihood(dist_train)
         
@@ -297,6 +340,8 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 'Epoch': list(range(train_losses_NLML_over_epochs.shape[0])), # pythonic indexing
                 'Train NLML': train_losses_NLML_over_epochs.tolist(),
                 'Train RMSE': train_losses_RMSE_over_epochs.tolist(),
+                # TODO
+                'Test NLML': test_losses_NLML_over_epochs.tolist(),
                 'Test RMSE': test_losses_RMSE_over_epochs.tolist(),
                 # hyperparameters
                 'l1': l1_over_epochs.tolist(),
@@ -325,10 +370,18 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             pred_dist_test, y_test.to(device)).mean()).item()
         test_MAE = gpytorch.metrics.mean_absolute_error(
             pred_dist_test, y_test.to(device)).mean().item()
-        test_NLL = gpytorch.metrics.negative_log_predictive_density(
-            pred_dist_test, y_test.to(device)).item()
-        test_QCE = quantile_coverage_error_2d(
-            pred_dist_test, y_test.to(device), quantile = 95.0).item()
+        try:
+            test_NLL = gpytorch.metrics.negative_log_predictive_density(
+                pred_dist_test, y_test.to(device)).item()
+        except Exception as e:
+            test_NLL = float('nan')
+            print("Failed to compute NLL:", e)
+        try:
+            test_QCE = quantile_coverage_error_2d(
+                pred_dist_test, y_test.to(device), quantile = 95.0).item()
+        except Exception as e:
+            test_QCE = float('nan')
+            print("Failed to compute QCE:", e)
         ## NOTE: It is important to use the absolute value of the divergence field, since both positive and negative deviations are violations and shouldn't cancel each other out 
         test_MAD = test_div_field.abs().mean().item()
 

@@ -15,7 +15,7 @@ import configs
 from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
 # We overwrite this parameter's initialisation with REAL data noise range
-from configs import REAL_NOISE_VAR_RANGE
+from configs import REAL_NOISE_VAR_RANGE, OUTPUTSCALE_VAR_RANGE, TASK_COVAR_FACTOR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
@@ -134,8 +134,14 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             likelihood
             ).to(device)
 
+        # INITIALISATIONS & CONSTRAINTS
+        # CONSTRAINT: Domain-informed noise variance constraint
+        model.likelihood.register_constraint(
+            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
+        )
+
         # Overwrite default noise variance initialisation with REAL data noise range init
-        model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)      
+        model.likelihood.noise = torch.empty(1, device = device).uniform_(REAL_NOISE_VAR_RANGE[1], REAL_NOISE_VAR_RANGE[1])  
 
         # Use other default initialisations from SIM experiments
         # GP models do not need weight decay, so we set it to 0

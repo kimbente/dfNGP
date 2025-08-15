@@ -352,7 +352,7 @@ class dfNGP(gpytorch.models.ExactGP):
         ### CONSTRAINTS ###
         # add constraint to likelihood 1e-5 is the default
         self.base_kernel.raw_lengthscale_constraint = gpytorch.constraints.GreaterThan(1e-5)
-        self.covar_module.raw_outputscale_constraint = gpytorch.constraints.GreaterThan(1e-5)
+        self.covar_module.raw_outputscale_constraint = gpytorch.constraints.GreaterThan(1e-2)
         self.likelihood.raw_noise_constraint = gpytorch.constraints.GreaterThan(1e-5)
 
     def forward(self, x):

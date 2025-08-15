@@ -5,7 +5,7 @@ import pandas as pd
 RESULTS_DIR = "results_sim"
 
 # Define the models and simulation names in the order we want
-models = ["dfNN", "dfGP", "dfGPcm", "dfNGP", "PINN", "GP"] # "dfGP2"
+models = ["dfNN", "dfGP", "dfGPcm", "dfNGP", "PINN", "GP"] 
 simulations = ["curve", "branching", "deflection", "ridges", "edge"]
 roman_numerals = ["I", "II", "III", "IV", "V"]
 
@@ -78,7 +78,7 @@ for idx, sim_name in enumerate(simulations):
 
             # Highlight if this is the best NLL
             if model == best_model_nll:
-                nll_str = r"\textcolor{OliveGreen}{" + nll_str_raw + "}"
+                nll_str = r"\textbf{\textcolor{OliveGreen}{" + nll_str_raw + "}}"
             else:
                 nll_str = nll_str_raw
         else:
@@ -96,7 +96,7 @@ for idx, sim_name in enumerate(simulations):
         # Highlight if this is the best RMSE
         rmse_str_raw = f"{rmse_mean} \\footnotesize{{± {rmse_std}}}"
         if model == best_model_rmse:
-            rmse_str = r"\textcolor{OliveGreen}{" + rmse_str_raw + "}"
+            rmse_str = r"\textbf{\textcolor{OliveGreen}{" + rmse_str_raw + "}}"
         else:
             rmse_str = rmse_str_raw
 

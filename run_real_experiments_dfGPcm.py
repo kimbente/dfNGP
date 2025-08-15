@@ -136,7 +136,11 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             mean_vector # NOTE: Initialise with mean vector from training data
             ).to(device)
 
-        ### INITIALISE HYPERPARAMETERS ###
+        # INITIALISATIONS & CONSTRAINTS
+        # CONSTRAINT: Domain-informed noise variance constraint
+        model.likelihood.register_constraint(
+            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
+        )
 
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)

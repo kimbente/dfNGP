@@ -14,11 +14,14 @@ from gpytorch_models import dfNGP
 import configs
 from configs import PATIENCE, MAX_NUM_EPOCHS, NUM_RUNS, WEIGHT_DECAY, N_SIDE_INFERENCE, PRINT_FREQUENCY
 from configs import TRACK_EMISSIONS_BOOL
-from configs import REAL_NOISE_VAR_RANGE
+from configs import REAL_NOISE_VAR_RANGE, REAL_OUTPUTSCALE_VAR_RANGE
 
 # Reiterating import for visibility
 MAX_NUM_EPOCHS = MAX_NUM_EPOCHS
+# TODO
+# MAX_NUM_EPOCHS = 1500  # For testing, you can change this to a smaller number
 NUM_RUNS = NUM_RUNS
+# NUM_RUNS = 3  # For testing, you can change this to a smaller number
 WEIGHT_DECAY = WEIGHT_DECAY
 PATIENCE = PATIENCE
 
@@ -138,6 +141,12 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             likelihood
             ).to(device)
 
+        # INITIALISATIONS & CONSTRAINTS
+        # CONSTRAINT: Domain-informed noise variance constraint
+        model.likelihood.register_constraint(
+            "raw_noise", gpytorch.constraints.Interval(REAL_NOISE_VAR_RANGE[0], REAL_NOISE_VAR_RANGE[1])
+        )
+
         # Overwrite default noise variance initialisation with REAL data noise range init
         model.likelihood.noise = torch.empty(1, device = device).uniform_( * REAL_NOISE_VAR_RANGE)
 
@@ -148,7 +157,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
         # NOTE: This part is different from dfGP
         optimizer = torch.optim.AdamW([
             {"params": model.mean_module.parameters(), 
-             "weight_decay": WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE * 0.2},
+             "weight_decay": WEIGHT_DECAY, "lr": MODEL_LEARNING_RATE * 0.1},
             {"params": list(model.covar_module.parameters()) + list(model.likelihood.parameters()), 
              "weight_decay": 0, "lr": MODEL_LEARNING_RATE},
             ])
@@ -167,6 +176,8 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             train_losses_NLML_over_epochs = torch.zeros(MAX_NUM_EPOCHS) # objective
             train_losses_RMSE_over_epochs = torch.zeros(MAX_NUM_EPOCHS) # by-product
             # monitor performance transfer to test (only RMSE easy to calc without covar)
+            # TODO
+            test_losses_NLML_over_epochs = torch.zeros(MAX_NUM_EPOCHS)
             test_losses_RMSE_over_epochs = torch.zeros(MAX_NUM_EPOCHS)
 
             # NOTE: Here, we estimate the noise
@@ -200,6 +211,7 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
             # Train on noisy or targets
             # NOTE: We only have observational y_train i.e. noisy data
             loss = - mll(train_pred_dist, y_train.to(device))  # negative marginal log likelihood
+            
             loss.backward()
             optimizer.step()
 
@@ -212,15 +224,20 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", gpytorch.utils.warnings.GPInputWarning)
                     train_pred_dist = model(x_train.to(device))
-                test_pred_dist = model(x_test.to(device))
+                test_pred_dist = likelihood(model(x_test.to(device)))
 
                 # Compute RMSE for training and test predictions (given true data, not noisy)
                 train_RMSE = torch.sqrt(gpytorch.metrics.mean_squared_error(train_pred_dist, y_train.to(device)).mean())
                 test_RMSE = torch.sqrt(gpytorch.metrics.mean_squared_error(test_pred_dist, y_test.to(device)).mean())
 
+                test_NLL = gpytorch.metrics.negative_log_predictive_density(
+                    test_pred_dist, y_test.to(device))
+
                 # Save losses for convergence plot
                 train_losses_NLML_over_epochs[epoch] = loss.item()
                 train_losses_RMSE_over_epochs[epoch] = train_RMSE.item()
+                # TODO
+                test_losses_NLML_over_epochs[epoch] = test_NLL.item()
                 test_losses_RMSE_over_epochs[epoch] = test_RMSE.item()
 
                 # Save evolution of hypers for convergence plot
@@ -323,6 +340,8 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 'Epoch': list(range(train_losses_NLML_over_epochs.shape[0])), # pythonic indexing
                 'Train NLML': train_losses_NLML_over_epochs.tolist(),
                 'Train RMSE': train_losses_RMSE_over_epochs.tolist(),
+                # TODO
+                'Test NLML': test_losses_NLML_over_epochs.tolist(),
                 'Test RMSE': test_losses_RMSE_over_epochs.tolist(),
                 # hyperparameters
                 'l1': l1_over_epochs.tolist(),
@@ -332,6 +351,10 @@ for region_name in ["region_lower_byrd", "region_mid_byrd", "region_upper_byrd"]
                 })
             
             df_losses.to_csv(f"{MODEL_REAL_RESULTS_DIR}/{region_name}_{model_name}_losses_over_epochs.csv", index = False, float_format = "%.5f") # reduce to 5 decimals for readability
+
+        # save mean predictions for later runs too
+        if run > 0:
+            torch.save(pred_dist_test.mean, f"{MODEL_REAL_RESULTS_DIR}/{region_name}_{model_name}_test_mean_predictions_run_{run+1}.pt")
 
         # Compute TRAIN metrics (convert tensors to float) for every run's tuned model
         # NOTE: gpytorch outputs metrics per task

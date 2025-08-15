@@ -1,32 +1,32 @@
-\multicolumn{6}{l}{\textbf{Upper Byrd}} \\
+\multicolumn{6}{l}{\textbf{Lower Byrd}} \\
 \midrule
-dfNN & \textcolor{OliveGreen}{0.331 \footnotesize{± 0.026}} & 0.234 \footnotesize{± 0.016} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
-dfGP & 1.032 \footnotesize{± 0.021} & 0.695 \footnotesize{± 0.008} & 16644 \footnotesize{± 28828} & 0.111 \footnotesize{± 0.014} & 0.0 \footnotesize{± 0.0} \\
-dfGPcm & 0.519 \footnotesize{± 0.007} & 0.387 \footnotesize{± 0.006} & 2.166 \footnotesize{± 0.021} & 0.392 \footnotesize{± 0.008} & 0.0 \footnotesize{± 0.0} \\
-dfNGP & 0.420 \footnotesize{± 0.033} & 0.267 \footnotesize{± 0.020} & 4.138 \footnotesize{± 0.952} & 0.310 \footnotesize{± 0.054} & 0.0 \footnotesize{± 0.0} \\
+dfNN & 0.236 \footnotesize{± 0.029} & 0.169 \footnotesize{± 0.015} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
+dfGP & 0.230 \footnotesize{± 0.001} & 0.154 \footnotesize{± 0.001} & -0.94 \footnotesize{± 0.012} & 0.053 \footnotesize{± 0.011} & 0.0 \footnotesize{± 0.0} \\
+dfGPcm & 0.194 \footnotesize{± 0.003} & 0.128 \footnotesize{± 0.002} & \textbf{\textcolor{OliveGreen}{-1.05 \footnotesize{± 0.009}}} & 0.012 \footnotesize{± 0.002} & 0.0 \footnotesize{± 0.0} \\
+dfNGP & \textbf{\textcolor{OliveGreen}{0.187 \footnotesize{± 0.010}}} & 0.126 \footnotesize{± 0.005} & -1.05 \footnotesize{± 0.049} & 0.015 \footnotesize{± 0.008} & 0.0 \footnotesize{± 0.0} \\
 \midrule
-PINN & 0.396 \footnotesize{± 0.050} & 0.274 \footnotesize{± 0.031} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{0.775 ± 0.193}} \\
-GP & 1.018 \footnotesize{± 0.025} & 0.620 \footnotesize{± 0.016} & \textcolor{OliveGreen}{1.674 \footnotesize{± 0.086}} & 0.091 \footnotesize{± 0.001} & \textcolor{BrickRed}{\footnotesize{0.125 ± 0.0}} \\
+PINN & 0.276 \footnotesize{± 0.026} & 0.196 \footnotesize{± 0.021} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{0.353 ± 0.070}} \\
+GP & 0.307 \footnotesize{± 0.000} & 0.198 \footnotesize{± 0.000} & -1.04 \footnotesize{± 0.002} & 0.001 \footnotesize{± 0.000} & \textcolor{BrickRed}{\footnotesize{3.856 ± 0.008}} \\
 \bottomrule
 \toprule
 \multicolumn{6}{l}{\textbf{Mid Byrd}} \\
 \midrule
-dfNN & \textcolor{OliveGreen}{0.387 \footnotesize{± 0.019}} & 0.289 \footnotesize{± 0.009} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
-dfGP & 0.624 \footnotesize{± 0.308} & 0.440 \footnotesize{± 0.171} & 21600 \footnotesize{± 38337} & 0.066 \footnotesize{± 0.059} & 0.0 \footnotesize{± 0.0} \\
-dfGPcm & 0.568 \footnotesize{± 0.023} & 0.456 \footnotesize{± 0.021} & 1.289 \footnotesize{± 0.018} & 0.535 \footnotesize{± 0.016} & 0.0 \footnotesize{± 0.0} \\
-dfNGP & 0.492 \footnotesize{± 0.060} & 0.380 \footnotesize{± 0.055} & 1.369 \footnotesize{± 1.461} & 0.440 \footnotesize{± 0.106} & 0.0 \footnotesize{± 0.0} \\
+dfNN & 0.397 \footnotesize{± 0.034} & 0.299 \footnotesize{± 0.024} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
+dfGP & 0.400 \footnotesize{± 0.000} & 0.310 \footnotesize{± 0.000} & 1.206 \footnotesize{± 0.072} & 0.376 \footnotesize{± 0.009} & 0.0 \footnotesize{± 0.0} \\
+dfGPcm & 0.396 \footnotesize{± 0.000} & 0.309 \footnotesize{± 0.000} & 1.160 \footnotesize{± 0.077} & 0.364 \footnotesize{± 0.009} & 0.0 \footnotesize{± 0.0} \\
+dfNGP & \textbf{\textcolor{OliveGreen}{0.384 \footnotesize{± 0.009}}} & 0.296 \footnotesize{± 0.004} & \textbf{\textcolor{OliveGreen}{1.109 \footnotesize{± 0.175}}} & 0.380 \footnotesize{± 0.042} & 0.0 \footnotesize{± 0.0} \\
 \midrule
-PINN & 0.629 \footnotesize{± 0.033} & 0.460 \footnotesize{± 0.031} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{1.062 ± 0.185}} \\
-GP & 0.830 \footnotesize{± 0.096} & 0.648 \footnotesize{± 0.071} & \textcolor{OliveGreen}{0.159 \footnotesize{± 0.507}} & 0.077 \footnotesize{± 0.096} & \textcolor{BrickRed}{\footnotesize{0.113 ± 0.008}} \\
+PINN & 0.528 \footnotesize{± 0.078} & 0.407 \footnotesize{± 0.063} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{0.306 ± 0.067}} \\
+GP & 0.590 \footnotesize{± 0.000} & 0.445 \footnotesize{± 0.000} & 1.319 \footnotesize{± 0.000} & 0.280 \footnotesize{± 0.000} & \textcolor{BrickRed}{\footnotesize{5.535 ± 0.001}} \\
 \bottomrule
 \toprule
-\multicolumn{6}{l}{\textbf{Lower Byrd}} \\
+\multicolumn{6}{l}{\textbf{Upper Byrd}} \\
 \midrule
-dfNN & \textcolor{OliveGreen}{0.190 \footnotesize{± 0.011}} & 0.140 \footnotesize{± 0.009} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
-dfGP & 0.299 \footnotesize{± 0.025} & 0.204 \footnotesize{± 0.017} & 98.40 \footnotesize{± 73.07} & 0.020 \footnotesize{± 0.009} & 0.0 \footnotesize{± 0.0} \\
-dfGPcm & 0.222 \footnotesize{± 0.005} & 0.153 \footnotesize{± 0.003} & -0.72 \footnotesize{± 0.070} & 0.012 \footnotesize{± 0.012} & 0.0 \footnotesize{± 0.0} \\
-dfNGP & 0.228 \footnotesize{± 0.045} & 0.151 \footnotesize{± 0.027} & -0.17 \footnotesize{± 0.691} & 0.212 \footnotesize{± 0.071} & 0.0 \footnotesize{± 0.0} \\
+dfNN & \textbf{\textcolor{OliveGreen}{0.334 \footnotesize{± 0.025}}} & 0.241 \footnotesize{± 0.020} & \footnotesize{n.a.} & \footnotesize{n.a.} & 0.0 \footnotesize{± 0.0} \\
+dfGP & 0.993 \footnotesize{± 0.024} & 0.596 \footnotesize{± 0.013} & 1.462 \footnotesize{± 0.079} & 0.451 \footnotesize{± 0.009} & 0.0 \footnotesize{± 0.0} \\
+dfGPcm & 0.896 \footnotesize{± 0.042} & 0.547 \footnotesize{± 0.025} & 1.190 \footnotesize{± 0.104} & 0.367 \footnotesize{± 0.034} & 0.0 \footnotesize{± 0.0} \\
+dfNGP & 0.480 \footnotesize{± 0.183} & 0.302 \footnotesize{± 0.100} & \textbf{\textcolor{OliveGreen}{0.695 \footnotesize{± 0.262}}} & 0.209 \footnotesize{± 0.073} & 0.0 \footnotesize{± 0.0} \\
 \midrule
-PINN & 0.303 \footnotesize{± 0.140} & 0.215 \footnotesize{± 0.100} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{0.586 ± 0.211}} \\
-GP & 0.291 \footnotesize{± 0.008} & 0.189 \footnotesize{± 0.002} & \textcolor{OliveGreen}{-0.88 \footnotesize{± 0.061}} & 0.005 \footnotesize{± 0.004} & \textcolor{BrickRed}{\footnotesize{0.121 ± 0.007}} \\
+PINN & 0.375 \footnotesize{± 0.022} & 0.267 \footnotesize{± 0.015} & \footnotesize{n.a.} & \footnotesize{n.a.} & \textcolor{BrickRed}{\footnotesize{0.524 ± 0.166}} \\
+GP & 0.750 \footnotesize{± 0.002} & 0.463 \footnotesize{± 0.000} & 0.913 \footnotesize{± 0.001} & 0.075 \footnotesize{± 0.007} & \textcolor{BrickRed}{\footnotesize{7.154 ± 0.049}} \\
 \bottomrule
