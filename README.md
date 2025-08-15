@@ -1,5 +1,8 @@
-# dfNGP
-Divergence-free Neural Gaussian Processes 
+# Divergence-free Neural Gaussian Processes (dfNGPs)
+
+This repository introduces Divergence-free Neural Gaussian Processes (dfNGPs), a propabilistic methods to reconstruct guaranteed divergence-free vector fields from sparse data. The dfNGP integrates a hard-constrained divergence-free NN into a divergence-free Gaussian Process framework. With environmental applications in mind, the dfNGP can enforce local mass conservations in flows of e.g. ground water, ice sheets, ocean currents, atmonpheric streams, while modelling spatially varying uncertainty via a full joint posterior distribution. 
+
+Here, we present experiments on 5 simulated test cases, as well as experiments on real Antarctic ice flux data from Byrd glacier. We also include fullly reproducible data preprocessing pipelines. 
 
 ![Introduction to dfNGPs](README_assets/intro_vis.png)
 
@@ -122,6 +125,8 @@ Go through the IPython notebook `real_data_step3_generate_train_test_regions.ipy
     - ice flux in x-direction [original units: m^2 / year i.e. m^3 / m / year, now: scaled to reduce magnitude]
     - ice flux in y-direction [original units: m^2 / year i.e. m^3 / m / year, now: scaled to reduce magnitude]
 
+![Ice flux experiments test regions](README_assets/locations.png)
+
 ## List of files with brief explanantions
 
 To aid navigation, we provide a list of folders and files (each in alphabatical order), along with brief descriptions of their contents. Align with the automatic ordering of github, we start with folders, followed by files.
@@ -191,6 +196,8 @@ To aid navigation, we provide a list of folders and files (each in alphabatical 
 - [visualise.py](visualise.py) provides useful visualisation functions for vector fields.
 
 ## The divergence-free Neural Gaussian Process (dfNGP)
+
+This graphic illustrates the architecture of the dfNGP:
 
 ![Structure of the divergence-free Neural Gaussian Process](README_assets/model_vis.png)
 
