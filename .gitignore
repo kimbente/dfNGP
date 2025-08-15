@@ -1,4 +1,6 @@
 __pycache__/*
+__pycache__
+preprocess/__pycache__/*
 
 ### RESULTS ###
 # Ignore all contents of results_sim model subfolders
@@ -36,3 +38,5 @@ figures_sim/variance/*
 figures_real/*
 figures_real/ground_truth_and_train/*
 figures_real/predictions/*
+__pycache__/configs.cpython-310.pyc
+__pycache__/gpytorch_models.cpython-310.pyc
